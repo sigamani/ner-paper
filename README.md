@@ -1,5 +1,7 @@
 # Fine-grained NER
 
+Based off method in paper here: https://arxiv.org/abs/1904.10503 
+
 ## Setup 
 
 1) Download AllenNLP model [here](https://drive.google.com/open?id=10_T5MfgmDLlPqJQ_l3nx-wdnpnYUGvmd) 
