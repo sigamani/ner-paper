@@ -2,13 +2,13 @@ import logging
 from allennlp.predictors import Predictor
 from gender_guesser.detector import Detector as _GenderDetector
 from nltk import ngrams
-from cai_logging import get_logger
+#from cai_logging import get_logger
 from db_access.wiki_db import WikiSQLITE
 
 from models.config import Config
 
 
-logger = get_logger("detectors")
+#logger = get_logger("detectors")
 
 
 def clean_logging():
@@ -59,7 +59,7 @@ class AllenNlpDetector:
 
     @staticmethod
     def _handle_unigram(tag, word):
-        logger.debug("Detected unigram: %s", word)
+        #logger.debug("Detected unigram: %s", word)
         return _make_entity(word, tag[2:])
 
     def _is_ngram(self, tag):
@@ -74,14 +74,14 @@ class AllenNlpDetector:
             words.append(next_word)
             next_tag, next_word = next(iterator)
         words.append(next_word)
-        logger.debug("Detected n-gram: %s", ' '.join(words))
+        #logger.debug("Detected n-gram: %s", ' '.join(words))
         return _make_entity(' '.join(words), label)
 
     def predict(self, message):
         try:
             return self.predictor.predict(sentence=message)
         except RuntimeError:
-            logger.warning("message '%s' unable to be parsed by allennlp", message)
+            #logger.warning("message '%s' unable to be parsed by allennlp", message)
             return {'tags': [], 'words': []}  # null results
 
     def combine_entities(self, tag):
@@ -121,7 +121,7 @@ class GenderDetector:
             token = entity["name"]
             gender = self._get_strong_gender(token)
             if gender:
-                logger.debug("Gender match found: %s", token)
+               # logger.debug("Gender match found: %s", token)
                 ents.append(_make_entity(token, 'PER', gender))
         return ents
 
@@ -153,35 +153,35 @@ class WikidataDetector:
         self.wiki_db = WikiSQLITE.check_and_connect()
 
     def _check_database(self, ent_name, ent_type):
-        logger.info(f"Checking db for {ent_name} of type {ent_type}")
+       # logger.info(f"Checking db for {ent_name} of type {ent_type}")
         subtype = self.wiki_db.select(ent_type, ent_name)
         if subtype is not None:
-            logger.info(f"Subtype for {ent_name} is {subtype}")
+           # logger.info(f"Subtype for {ent_name} is {subtype}")
             return ent_name, subtype
 
         ent_name_without_the = ent_name.replace('the ', '')
         subtype_no_the = self.wiki_db.select(ent_type, ent_name_without_the)
         if subtype_no_the is not None:
-            logger.info(f"Subtype for {ent_name} without 'the' is {subtype_no_the}")
+           # logger.info(f"Subtype for {ent_name} without 'the' is {subtype_no_the}")
             return ent_name_without_the, subtype_no_the
 
         redirect_result = self.wiki_db.select('redirect', ent_name)
         if redirect_result is not None:
             redirected_subtype = self.wiki_db.select(ent_type, redirect_result)
             if redirected_subtype is not None:
-                logger.info(f"Subtype for {ent_name} after redirect is {redirected_subtype}")
+               # logger.info(f"Subtype for {ent_name} after redirect is {redirected_subtype}")
                 return redirect_result, redirected_subtype
-        logger.info(f"Subtype for {ent_name} is None")
+       # logger.info(f"Subtype for {ent_name} is None")
         return ent_name, ""
 
     def get_person_subtype(self, name, gender):
         if len(name.split()) == 1:
             """If only one name return gender to avoid """
-            logger.info(f"Returning gender for single name: {name}")
+           # logger.info(f"Returning gender for single name: {name}")
             return name, gender
         ent_name, ent_subtype = self._check_database(name, 'person')
         if not ent_subtype:
-            logger.info(f"Returning gender because no subtype")
+           # logger.info(f"Returning gender because no subtype")
             ent_subtype = gender
         return ent_name, ent_subtype
 

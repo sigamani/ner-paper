@@ -1,10 +1,10 @@
-from cai_logging import get_logger
+#from cai_logging import get_logger
 
 from models.detectors import AllenNlpDetector, GenderDetector, WikidataDetector
 from models.truecaser import TrueCaser
 
 
-logger = get_logger("cai-ner")
+#logger = get_logger("cai-ner")
 
 
 class _EntityDetector:
@@ -33,15 +33,15 @@ class _EntityDetector:
         3. Augment search with gender detection (only for 1 token PERSONs)
         4. Augment search with fine-grained subtypes
         """
-        logger.info("Starting NER detection")
+        #logger.info("Starting NER detection")
         message = self.truecaser.get_result(message)
-        logger.debug(f"True cased message: {message}")
+        #logger.debug(f"True cased message: {message}")
         target_entities, _ = self.allennlp_detector.get_entities(message)
         res_tmp = self.gender_detector.get_gender(target_entities)
         res = self.wikidata_detector.get_finegrained_result(res_tmp)
         for i, ent in enumerate(res):
             ent['name'] = res_tmp[i]['name']
-        logger.info(f"Fine Grained Results: {res}")
+        #logger.info(f"Fine Grained Results: {res}")
         return res
 
 
@@ -51,9 +51,9 @@ class EntityDetector:
         self._model = None
 
     def load(self):
-        logger.info("Loading model")
+        #logger.info("Loading model")
         self._model = _EntityDetector()
-        logger.info("Model loaded")
+        #logger.info("Model loaded")
 
     @property
     def is_loaded(self):
